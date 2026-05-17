@@ -1,5 +1,5 @@
 [project]
-name = "agentic-voc-bench"
+name = "lodestar"
 version = "0.1.0"
 description = "Public Voice-of-Customer pipeline for agentic coding tools. v0 demonstration."
 readme = "README.md"
@@ -29,6 +29,9 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["voc"]
 
 [tool.ruff]
 line-length = 100
