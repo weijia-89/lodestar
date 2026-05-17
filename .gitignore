@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Data (corpus pulls; reproducible from API)
+data/raw/
+data/cache/
+*.parquet
+*.jsonl
+!tests/fixtures/*.jsonl
+
+# Secrets
+.env
+.env.local
+*.key
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Cost / API logs
+.cost-log/
+.api-cache/
+
+# Interview transcripts (private until consent confirmed)
+interviews/raw/
+interviews/transcripts/
+!interviews/README.md
+!interviews/template.md

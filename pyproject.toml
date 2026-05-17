@@ -1,0 +1,43 @@
+[project]
+name = "agentic-voc-bench"
+version = "0.1.0"
+description = "Public Voice-of-Customer pipeline for agentic coding tools. v0 demonstration."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Wei Jia" }]
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2.5",
+    "pandas>=2.2",
+    "pyarrow>=15.0",
+    "rapidfuzz>=3.6",
+    "scikit-learn>=1.4",
+    "tenacity>=8.2",
+    "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.2",
+    "ruff>=0.4",
+    "mypy>=1.9",
+    "respx>=0.20",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+timeout = 30
+testpaths = ["tests"]
