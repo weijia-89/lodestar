@@ -1,32 +1,19 @@
-"""T8 Red: Fuzzy dedup CLI appends cluster_id_fuzzy column."""
-from datetime import datetime, timezone
+"""T8: Fuzzy dedup CLI appends cluster_id_fuzzy column."""
 from pathlib import Path
 
 import pyarrow.parquet as pq
 
 from voc.dedup.__main__ import run_dedup
 from voc.ingest.parquet_io import write_issues
-from voc.schema.issue import Issue
 
 
-def _i(n: int, title: str) -> Issue:
-    return Issue(
-        id=f"aider:{n}", tool="aider", repo="Aider-AI/aider", number=n,
-        title=title, body="", url=f"https://x/{n}", state="open",
-        created_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        closed_at=None, labels=[], author_login_sha256="a" * 64,
-        comments_count=0, reactions_count=0,
-    )
-
-
-def test_dedup_cli_adds_cluster_column(tmp_path: Path):
+def test_dedup_cli_adds_cluster_column(tmp_path: Path, make_issue):
     src = tmp_path / "in.parquet"
     dst = tmp_path / "out.parquet"
     issues = [
-        _i(1, "Aider crashes on empty file"),
-        _i(2, "crash: aider crashes on empty file"),  # lexical dup
-        _i(3, "Memory leak in long-running sessions"),  # not a dup
+        make_issue(1, "Aider crashes on empty file"),
+        make_issue(2, "crash: aider crashes on empty file"),  # lexical dup
+        make_issue(3, "Memory leak in long-running sessions"),  # not a dup
     ]
     write_issues(issues, src)
     n = run_dedup(input=src, output=dst, fuzzy_threshold=85)

@@ -1,10 +1,14 @@
-"""Fuzzy dedup CLI.
+"""Dedup CLI: appends cluster_id_fuzzy + cluster_id_semantic columns to issue parquet.
 
 Usage:
-    python -m voc.dedup --in aider.parquet --out aider_dedup.parquet --fuzzy-threshold 85
+    python -m voc.dedup --in aider.parquet --out aider_dedup.parquet \
+        --fuzzy-threshold 85 --semantic-threshold 0.5
 
-Appends a `cluster_id_fuzzy` int64 column to the input parquet. T11 will extend
-this CLI to also append `cluster_id_semantic`.
+Hidden invariant (revisit when ranker exists): cluster ids are the smallest
+input-index in each cluster, so they are stable IFF the input parquet is in a
+stable order. Ingest currently sorts issues by id before writing, so this
+holds for the canonical pipeline. Re-shuffling input would produce the same
+partition with relabeled cluster ids.
 """
 from __future__ import annotations
 

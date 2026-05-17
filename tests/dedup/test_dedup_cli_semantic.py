@@ -1,26 +1,14 @@
-"""T11 Red: Dedup CLI also appends cluster_id_semantic column."""
-from datetime import datetime, timezone
+"""T11: Dedup CLI also appends cluster_id_semantic column."""
 from pathlib import Path
 
 import pyarrow.parquet as pq
 
 from voc.dedup.__main__ import run_dedup
 from voc.ingest.parquet_io import write_issues
-from voc.schema.issue import Issue
 
 
-def _i(n: int, title: str, body: str = "") -> Issue:
-    return Issue(
-        id=f"aider:{n}", tool="aider", repo="Aider-AI/aider", number=n,
-        title=title, body=body, url=f"https://x/{n}", state="open",
-        created_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        closed_at=None, labels=[], author_login_sha256="a" * 64,
-        comments_count=0, reactions_count=0,
-    )
-
-
-def test_dedup_cli_adds_both_cluster_columns(tmp_path: Path):
+def test_dedup_cli_adds_both_cluster_columns(tmp_path: Path, make_issue):
+    _i = make_issue
     src = tmp_path / "in.parquet"
     dst = tmp_path / "out.parquet"
     body_overlap = (

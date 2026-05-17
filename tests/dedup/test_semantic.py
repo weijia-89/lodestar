@@ -1,27 +1,14 @@
-"""T10 Red: Semantic dedup clustering via cosine similarity + union-find."""
-from datetime import datetime, timezone
-
+"""T10: Semantic dedup clustering via cosine similarity + union-find."""
 from voc.dedup.semantic import cluster_semantic
-from voc.schema.issue import Issue
 
 
-def _i(n: int, title: str, body: str = "") -> Issue:
-    return Issue(
-        id=f"aider:{n}", tool="aider", repo="Aider-AI/aider", number=n,
-        title=title, body=body, url=f"https://x/{n}", state="open",
-        created_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        closed_at=None, labels=[], author_login_sha256="a" * 64,
-        comments_count=0, reactions_count=0,
-    )
-
-
-def test_semantic_groups_issues_with_overlapping_bodies():
+def test_semantic_groups_issues_with_overlapping_bodies(make_issue):
     """Semantic dedup catches issues whose titles differ but bodies overlap.
 
     This is the value-add over fuzzy title dedup: fuzzy only sees titles, but
     real duplicate GitHub issues often have divergent titles + similar bodies.
     """
+    _i = make_issue
     body_overlap = (
         "When I run aider on a large repository the agent loop "
         "hangs after the first edit and never returns control to me. "
@@ -40,16 +27,19 @@ def test_semantic_groups_issues_with_overlapping_bodies():
     assert clusters[2] != clusters[3]
 
 
-def test_semantic_deterministic():
+def test_semantic_deterministic(make_issue):
     topics = ["crash bug", "performance issue", "feature request", "documentation fix"]
-    issues = [_i(i, f"{topics[i % 4]} number {i:02d}", f"detailed body about {topics[i % 4]}") for i in range(20)]
+    issues = [
+        make_issue(i, f"{topics[i % 4]} number {i:02d}", f"detailed body about {topics[i % 4]}")
+        for i in range(20)
+    ]
     c1 = cluster_semantic(issues, similarity_threshold=0.5)
     c2 = cluster_semantic(issues, similarity_threshold=0.5)
     assert c1 == c2
 
 
-def test_semantic_singleton_when_no_match():
-    issues = [_i(1, "completely unique terminology zxqwrt")]
+def test_semantic_singleton_when_no_match(make_issue):
+    issues = [make_issue(1, "completely unique terminology zxqwrt")]
     clusters = cluster_semantic(issues, similarity_threshold=0.5)
     assert clusters == [0]
 
