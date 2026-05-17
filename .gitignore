@@ -15,6 +15,7 @@ data/raw/
 data/cache/
 *.parquet
 *.jsonl
+!tests/fixtures/*.parquet
 !tests/fixtures/*.jsonl
 
 # Secrets
@@ -31,8 +32,5 @@ data/cache/
 .cost-log/
 .api-cache/
 
-# Interview transcripts (private until consent confirmed)
-interviews/raw/
-interviews/transcripts/
-!interviews/README.md
-!interviews/template.md
+# (v3.2 pivot) Interview transcripts removed — lodestar is public-source-only.
+# Voice synthesis memos live in voc/synthesis/ and are git-tracked (public sources, no PII).
