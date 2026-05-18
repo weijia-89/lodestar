@@ -48,14 +48,17 @@ def run_ingest(
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Ingest GitHub issues to parquet.")
+    p = argparse.ArgumentParser(
+        prog="voc.ingest", description="Ingest GitHub issues to parquet."
+    )
     p.add_argument("--tool", required=True, choices=list(TOOLS))
     p.add_argument("--window", type=int, default=28, help="trailing days (default 28)")
-    p.add_argument("--out", type=Path, required=True)
+    # Canonical --output flag with --out alias kept for backward compat.
+    p.add_argument("--output", "--out", dest="output", type=Path, required=True)
     p.add_argument("--force", action="store_true")
     args = p.parse_args()
-    n = run_ingest(args.tool, args.window, args.out, force=args.force)
-    print(f"ingested {n} issues for {args.tool} → {args.out}")
+    n = run_ingest(args.tool, args.window, args.output, force=args.force)
+    print(f"ingested {n} issues for {args.tool} -> {args.output}")
 
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ def cluster_by_title(issues: Sequence[Issue], threshold: int = 85) -> list[int]:
     """Return list[cluster_id] aligned with issues. Cluster ids = smallest-index in cluster.
 
     Titles are lowercased before scoring (case-insensitive match). Morphological
-    variants ("crashes" vs "crash") are NOT collapsed — that would require stemming,
+    variants ("crashes" vs "crash") are NOT collapsed; that would require stemming,
     out of scope for v0. Lexically-overlapping near-duplicates with shared content
     words are caught (token_set_ratio is order-invariant).
     """

@@ -6,13 +6,21 @@ per ranked issue plus empty columns for human-authored rationale.
 import csv
 import subprocess
 import sys
+from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from voc.rank.__main__ import run_rank
 from voc.report.rationale_csv import emit_rationale_csv
 
 RATIONALE_COLUMNS = ("rationale", "severity_assessment", "action_needed", "reviewer")
+
+# Same gate as tests/rank/test_cli.py and tests/dedup/test_cli_smoke.py.
+# Subprocess invocation crashes under mutmut's trampoline (mutmut.config is
+# None in the subprocess). Skip the CLI smoke test under mutmut; the
+# in-process emit_rationale_csv() tests still cover the same code path.
+_UNDER_MUTMUT = Path.cwd().name == "mutants"
 
 
 def _to_ranked_parquet(issues, src, dst, now):
@@ -132,6 +140,7 @@ def test_emit_rationale_csv_empty_input_writes_header_only(now, tmp_path):
         assert col in rows[0]
 
 
+@pytest.mark.skipif(_UNDER_MUTMUT, reason="subprocess + mutmut trampoline incompatible")
 def test_emit_rationale_csv_cli_smoke(make_issue, now, tmp_path):
     """End-to-end via `python -m voc.report.rationale_csv`."""
     src = tmp_path / "in.parquet"

@@ -40,14 +40,17 @@ def run_dedup(
 
 
 def main() -> None:
-    p = argparse.ArgumentParser()
-    p.add_argument("--in", dest="input", type=Path, required=True)
-    p.add_argument("--out", dest="output", type=Path, required=True)
+    p = argparse.ArgumentParser(prog="voc.dedup")
+    # Canonical flags: --input / --output (consistent with voc.rank, voc.moderate,
+    # voc.report.rationale_csv). Short aliases --in / --out preserved for
+    # backward compatibility with the original v0 CLI.
+    p.add_argument("--input", "--in", dest="input", type=Path, required=True)
+    p.add_argument("--output", "--out", dest="output", type=Path, required=True)
     p.add_argument("--fuzzy-threshold", type=int, default=85)
     p.add_argument("--semantic-threshold", type=float, default=0.5)
     args = p.parse_args()
     n = run_dedup(args.input, args.output, args.fuzzy_threshold, args.semantic_threshold)
-    print(f"deduped {n} issues; cluster_id_fuzzy + cluster_id_semantic added → {args.output}")
+    print(f"deduped {n} issues; cluster_id_fuzzy + cluster_id_semantic added -> {args.output}")
 
 
 if __name__ == "__main__":

@@ -100,10 +100,10 @@ cd lodestar
 pip install -e ".[dev]"
 pytest
 
-# Pull last 90 days from each tool (writes to data/<tool>-*.parquet):
-python -m voc.ingest --tool aider --days 90
-python -m voc.ingest --tool cline --days 90
-python -m voc.ingest --tool continue --days 90
+# Pull last 90 days from each tool (writes to the --output path):
+python -m voc.ingest --tool aider --window 90 --output data/aider-90d.parquet
+python -m voc.ingest --tool cline --window 90 --output data/cline-90d.parquet
+python -m voc.ingest --tool continue --window 90 --output data/continue-90d.parquet
 
 # Dedup the corpus:
 python -m voc.dedup --input data/aider-90d.parquet --output data/aider-dedup.parquet
