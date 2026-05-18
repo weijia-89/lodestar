@@ -2,7 +2,6 @@
 from voc.ingest.cline import to_issue as cline_to_issue
 from voc.ingest.continue_ import to_issue as continue_to_issue
 
-
 RAW = {
     "number": 42,
     "title": "T",

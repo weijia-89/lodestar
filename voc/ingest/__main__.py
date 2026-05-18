@@ -10,13 +10,12 @@ from __future__ import annotations
 
 import argparse
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from voc.ingest import aider, cline, continue_
 from voc.ingest.github_client import GitHubIssuesClient
 from voc.ingest.parquet_io import write_issues
-
 
 TOOLS = {"aider": aider, "cline": cline, "continue": continue_}
 IDEMPOTENCY_WINDOW_SECONDS = 3600  # 1 hour
@@ -34,13 +33,13 @@ def run_ingest(
     If output is <1h old and force=False, returns 0 without re-fetching.
     """
     if not force and output.exists():
-        age_s = datetime.now(timezone.utc).timestamp() - output.stat().st_mtime
+        age_s = datetime.now(UTC).timestamp() - output.stat().st_mtime
         if age_s < IDEMPOTENCY_WINDOW_SECONDS:
             return 0
     if tool not in TOOLS:
         raise SystemExit(f"unknown tool: {tool}")
     mod = TOOLS[tool]
-    since = datetime.now(timezone.utc) - timedelta(days=window_days)
+    since = datetime.now(UTC) - timedelta(days=window_days)
     client = GitHubIssuesClient(token=os.environ.get("GITHUB_TOKEN"))
     issues = [mod.to_issue(raw) for raw in client.fetch_issues_since(mod.REPO, since)]
     issues.sort(key=lambda i: i.id)  # deterministic order across runs

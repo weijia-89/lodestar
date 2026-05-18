@@ -7,7 +7,7 @@ Performance: O(n²) upper-triangle sweep = n*(n-1)/2 comparisons. At v0 scale
 2026-05-17), this is ~2,145 comparisons, well under 100ms. TODO: switch to
 LSH (datasketch.MinHashLSH) when n > 5000.
 """
-from typing import Sequence
+from collections.abc import Sequence
 
 from rapidfuzz import fuzz
 

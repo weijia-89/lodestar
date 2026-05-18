@@ -2,8 +2,8 @@
 
 All timestamps normalized to UTC. Pydantic v2 frozen model; extra fields raise.
 """
-from datetime import datetime, timezone
-from typing import Literal, Optional
+from datetime import UTC, datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -24,7 +24,7 @@ class Issue(BaseModel):
     state: State
     created_at: datetime
     updated_at: datetime
-    closed_at: Optional[datetime] = None
+    closed_at: datetime | None = None
     labels: list[str] = Field(default_factory=list)
     author_login_sha256: str = Field(..., description="SHA-256 of login for privacy")
     comments_count: int = 0
@@ -38,5 +38,5 @@ class Issue(BaseModel):
         if isinstance(v, str):
             v = datetime.fromisoformat(v.replace("Z", "+00:00"))
         if v.tzinfo is None:
-            v = v.replace(tzinfo=timezone.utc)
-        return v.astimezone(timezone.utc)
+            v = v.replace(tzinfo=UTC)
+        return v.astimezone(UTC)

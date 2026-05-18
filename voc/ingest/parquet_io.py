@@ -1,12 +1,11 @@
 """Parquet round-trip for Issue model. Closes A8 (dtype-drift) assumption tax."""
+from collections.abc import Iterable, Iterator
 from pathlib import Path
-from typing import Iterable, Iterator
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 
 from voc.schema.issue import Issue
-
 
 # Explicit schema for empty-corpus case. Field order matches Issue.model_dump output.
 _EMPTY_SCHEMA = pa.schema([

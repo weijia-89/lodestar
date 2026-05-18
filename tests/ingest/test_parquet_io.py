@@ -1,5 +1,5 @@
 """T5 Red: Parquet round-trip for Issue model (closes A8)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from voc.ingest.parquet_io import read_issues, write_issues
@@ -16,8 +16,8 @@ def _make_issue(n: int) -> Issue:
         body=f"b{n}",
         url=f"https://x/{n}",
         state="open",
-        created_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2026, 5, 2, tzinfo=timezone.utc),
+        created_at=datetime(2026, 5, 1, tzinfo=UTC),
+        updated_at=datetime(2026, 5, 2, tzinfo=UTC),
         closed_at=None,
         labels=["bug", "ux"] if n % 2 else [],
         author_login_sha256="a" * 64,
@@ -32,7 +32,7 @@ def test_parquet_round_trip_preserves_all_fields(tmp_path: Path):
     write_issues(originals, path)
     loaded = list(read_issues(path))
     assert len(loaded) == 50
-    for a, b in zip(originals, loaded):
+    for a, b in zip(originals, loaded, strict=True):
         assert a == b  # pydantic frozen __eq__
 
 

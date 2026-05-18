@@ -2,7 +2,7 @@
 
 Tests should fail with ModuleNotFoundError until voc/schema/issue.py exists.
 """
-from datetime import timezone
+from datetime import UTC
 
 import pytest
 
@@ -32,8 +32,8 @@ def test_issue_normalizes_timestamps_to_utc():
         comments_count=3,
         reactions_count=5,
     )
-    assert issue.created_at.tzinfo == timezone.utc
-    assert issue.updated_at.tzinfo == timezone.utc
+    assert issue.created_at.tzinfo == UTC
+    assert issue.updated_at.tzinfo == UTC
     assert issue.closed_at is None
     assert issue.tool == "aider"
 

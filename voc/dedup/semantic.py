@@ -2,11 +2,12 @@
 
 Deterministic given fixed input order.
 
-Performance: cosine_similarity returns a dense n×n matrix. At v0 scale (≤162),
-memory is ~0.2 MB. Ceiling is ~3000 issues (~72 MB float64) before we'd need
-to switch to a sparse / blocked similarity computation.
+Performance: cosine_similarity returns a dense n-by-n matrix. At v0 scale
+(n<=66 per Pass 4.5 post-smoke estimate), memory is ~0.2 MB. Ceiling is
+~3000 issues (~72 MB float64) before we'd need to switch to a sparse /
+blocked similarity computation.
 """
-from typing import Sequence
+from collections.abc import Sequence
 
 from sklearn.metrics.pairwise import cosine_similarity
 

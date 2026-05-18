@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 from voc.ingest.__main__ import run_ingest
 
-
 FAKE_BATCH = [
     {
         "number": 1,

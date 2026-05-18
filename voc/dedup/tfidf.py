@@ -4,7 +4,7 @@ TfidfVectorizer is deterministic by construction (no random_state). Determinism
 comes from sorted vocabulary, which sklearn does by default. Config is pinned;
 do not change without a regression test.
 """
-from typing import Sequence
+from collections.abc import Sequence
 
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import TfidfVectorizer

@@ -1,6 +1,6 @@
 """Thin GitHub Issues client. Pagination + 429/5xx retry. Pull-requests filtered out."""
+from collections.abc import Iterator
 from datetime import datetime
-from typing import Iterator, Optional
 
 import httpx
 from tenacity import (
@@ -20,7 +20,7 @@ class GitHubIssuesClient:
     Pull requests are excluded (GitHub conflates them with issues at the API level).
     """
 
-    def __init__(self, token: Optional[str] = None, timeout: float = 15.0):
+    def __init__(self, token: str | None = None, timeout: float = 15.0):
         headers = {"Accept": "application/vnd.github+json", "User-Agent": "lodestar/0.1"}
         if token:
             headers["Authorization"] = f"Bearer {token}"

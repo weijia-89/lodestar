@@ -7,7 +7,7 @@ def test_version() -> None:
 
 
 def test_submodules_import() -> None:
-    import voc.ingest  # noqa: F401
-    import voc.dedup  # noqa: F401
-    import voc.classify  # noqa: F401
+    import voc.classify
+    import voc.dedup
+    import voc.ingest
     import voc.report  # noqa: F401

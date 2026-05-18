@@ -1,7 +1,6 @@
 """T3 Red: Aider issue mapper."""
 from voc.ingest.aider import to_issue
 
-
 SAMPLE = {
     "number": 1234,
     "title": "Crash when opening empty file",

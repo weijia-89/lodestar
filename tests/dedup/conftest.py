@@ -1,5 +1,5 @@
 """Shared fixtures for dedup tests. Single Issue factory; one place to update on schema drift."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -16,8 +16,8 @@ def _make_issue(n: int, title: str, body: str = "") -> Issue:
         body=body,
         url=f"https://x/{n}",
         state="open",
-        created_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
-        updated_at=datetime(2026, 5, 1, tzinfo=timezone.utc),
+        created_at=datetime(2026, 5, 1, tzinfo=UTC),
+        updated_at=datetime(2026, 5, 1, tzinfo=UTC),
         closed_at=None,
         labels=[],
         author_login_sha256="a" * 64,

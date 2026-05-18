@@ -1,5 +1,5 @@
 """T2 Red: GitHub Issues HTTP client with pagination + 429 retry."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import httpx
 import respx
@@ -20,7 +20,7 @@ def test_fetch_issues_since_paginates_until_empty():
                             "since": "2026-04-19T00:00:00+00:00"}).respond(200, json=[])
 
     client = GitHubIssuesClient(token=None)
-    since = datetime(2026, 4, 19, tzinfo=timezone.utc)
+    since = datetime(2026, 4, 19, tzinfo=UTC)
     out = list(client.fetch_issues_since("Aider-AI/aider", since))
     assert len(out) == 149
     assert out[0]["number"] == 1
@@ -36,7 +36,7 @@ def test_fetch_issues_retries_on_429():
         httpx.Response(200, json=[]),
     ])
     client = GitHubIssuesClient(token=None)
-    since = datetime(2026, 4, 19, tzinfo=timezone.utc)
+    since = datetime(2026, 4, 19, tzinfo=UTC)
     out = list(client.fetch_issues_since("Aider-AI/aider", since))
     assert len(out) == 1
     assert route.call_count == 3
@@ -55,7 +55,7 @@ def test_fetch_issues_skips_pull_requests():
     respx.get(base, params={"page": "2", "per_page": "100", "state": "all",
                             "since": "2026-04-19T00:00:00+00:00"}).respond(200, json=[])
     client = GitHubIssuesClient(token=None)
-    since = datetime(2026, 4, 19, tzinfo=timezone.utc)
+    since = datetime(2026, 4, 19, tzinfo=UTC)
     out = list(client.fetch_issues_since("Aider-AI/aider", since))
     assert len(out) == 1
     assert out[0]["number"] == 1
