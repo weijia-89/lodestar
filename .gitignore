@@ -44,3 +44,6 @@ mutmut-stats.db
 # Session handoffs, agent-to-agent context dumps, scratch.
 # Never committed; reconstructable from the canonical docs.
 localonly/
+
+# Git worktrees for parallel-agent dispatch. Internal pointers, never source.
+.worktrees/
