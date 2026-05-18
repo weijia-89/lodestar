@@ -18,7 +18,7 @@ def test_ci_workflow_parses_as_yaml():
 
 
 def test_ci_runs_required_gates():
-    """Required at v0: ruff (lint), mypy (advisory), pytest (tests), pip-audit (deps).
+    """Required at v0: ruff (lint), mypy (enforced as of v0.2), pytest (tests), pip-audit (deps).
 
     Behave / BDD layer is deferred; if added later, extend this list.
     """

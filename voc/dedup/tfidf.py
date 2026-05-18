@@ -7,7 +7,9 @@ do not change without a regression test.
 from collections.abc import Sequence
 
 import scipy.sparse as sp
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import (  # type: ignore[import-untyped]
+    TfidfVectorizer,  # TODO(v0.2): drop when sklearn ships py.typed marker
+)
 
 from voc.schema.issue import Issue
 

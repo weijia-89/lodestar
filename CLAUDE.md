@@ -155,13 +155,13 @@ The portfolio narrative is "AI-assisted with full review discipline." That
 discipline has known gaps documented here so reviewers see them in advance
 rather than discovering them as surprises:
 
-- **mypy is advisory.** CI runs `mypy voc/ || true` (see
-  `.github/workflows/ci.yml:29`). Type errors do not fail CI at v0.1.
-  Local `.venv/bin/mypy voc/` currently reports ~7 issues, most being
-  missing third-party stubs (`pandas-stubs`, `scipy-stubs`, sklearn's
-  missing `py.typed` marker). The remediation is `pip install pandas-stubs
-  scipy-stubs` in the dev group AND removing the `|| true` once stubs are
-  installed. Tracked as a v0.2 fitness-function uplift.
+- **mypy is enforced (v0.2 fitness function lifted 2026-05-18).** CI runs
+  `mypy voc/` and fails the build on type errors. `pandas-stubs` and
+  `scipy-stubs` are pinned in the dev group (see `pyproject.toml`). Two
+  sklearn imports carry `# type: ignore[import-untyped]  # TODO(v0.2)`
+  pending an upstream `py.typed` marker; tracked at `voc/dedup/tfidf.py:10`
+  and `voc/dedup/semantic.py:12`. Drop the suppressions when sklearn
+  ships the marker.
 - **CI Python matrix trails dev.** CI tests on Python 3.11 and 3.12
   (`.github/workflows/ci.yml:15`). Dev runs Python 3.14.5 (see Verified
   library versions above). Once GitHub Actions provides stable 3.14

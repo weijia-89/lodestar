@@ -9,7 +9,9 @@ blocked similarity computation.
 """
 from collections.abc import Sequence
 
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import (  # type: ignore[import-untyped]
+    cosine_similarity,  # TODO(v0.2): drop when sklearn ships py.typed marker
+)
 
 from voc.dedup._union_find import find, union
 from voc.dedup.tfidf import vectorize
