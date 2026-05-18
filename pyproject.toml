@@ -25,6 +25,8 @@ dev = [
     "mypy>=1.9",
     "respx>=0.20",
     "PyYAML>=6.0",  # for tests/ci/test_workflow_yaml.py
+    "pandas-stubs>=2.2,<3.0",  # mypy stubs; cap matches parent pandas pin
+    "scipy-stubs>=1.14,<2.0",  # mypy stubs; scipy is transitive via scikit-learn
 ]
 escalation = [
     "playwright>=1.45",
