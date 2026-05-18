@@ -66,6 +66,34 @@ Tests live alongside source by module: `tests/dedup/`, `tests/ingest/`,
 `tests/ci/`, `tests/scripts/`. The `tests/dedup/conftest.py` `make_issue`
 fixture is the single Issue factory for dedup tests.
 
+## Mutation testing (mutmut, dedup layer)
+
+Mutmut is configured under `[tool.mutmut]` in `pyproject.toml`. Runs against
+`voc/dedup/` with the dedup test suite as the kill source.
+
+```
+bash scripts/run_mutmut.sh           # foreground (~25s wall clock)
+bash scripts/run_mutmut.sh --detach  # background, prints PID + log path
+python -m mutmut results             # show survivors
+python -m mutmut show <mutant_name>  # see the diff for one mutant
+```
+
+Last run (2026-05-17): **84.8% kill rate (128 / 151 covered)**, 23 surviving
+mutants. Most survivors are:
+
+- Equivalent mutants where the mutated code is semantically identical
+  (e.g., `.lower()` <-> `.upper()` when both sides go through the same
+  normalization; inner-loop range tweaks that produce the same partition
+  via union-find symmetry)
+- mutmut-trampoline architectural quirks where default-argument mutations
+  in the mutant body never fire because Python evaluates defaults at the
+  wrapper-call site
+- CLI `main()` argparse code that has no unit-test coverage by design
+
+The `tests/dedup/conftest.py` includes a `multiprocessing.set_start_method`
+monkey-patch needed for mutmut+Python 3.14 compatibility. Harmless under
+normal pytest runs.
+
 ## Verified library versions (rev when golden test re-baselines)
 
 Recorded 2026-05-17 against `tests/fixtures/aider_smoke_66.parquet`:

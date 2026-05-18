@@ -34,3 +34,9 @@ data/cache/
 
 # (v3.2 pivot) Interview transcripts removed — lodestar is public-source-only.
 # Voice synthesis memos live in voc/synthesis/ and are git-tracked (public sources, no PII).
+
+# mutmut generates a `mutants/` mirror tree during mutation testing runs.
+# Regenerated on every `mutmut run`; not source.
+mutants/
+.mutmut-cache/
+mutmut-stats.db
