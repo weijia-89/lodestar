@@ -52,11 +52,11 @@ timeout = 30
 testpaths = ["tests"]
 
 [tool.mutmut]
-paths_to_mutate = ["voc/dedup/"]
-tests_dir = ["tests/dedup/"]
+paths_to_mutate = ["voc/dedup/", "voc/rank/"]
+tests_dir = ["tests/dedup/", "tests/rank/"]
 # Copy the non-mutated voc/ pieces so tests can import them. mutmut's sandbox
 # only mirrors paths_to_mutate by default, which would leave voc.schema etc.
 # unresolvable when conftest.py loads.
 also_copy = ["voc/__init__.py", "voc/schema", "voc/ingest"]
 debug = false
-runner = "python -m pytest tests/dedup/ --timeout 10 -x -q --no-header"
+runner = "python -m pytest tests/dedup/ tests/rank/ --timeout 10 -x -q --no-header"

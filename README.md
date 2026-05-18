@@ -76,28 +76,41 @@ lodestar/
 | Component | Status |
 |---|---|
 | Repo scaffold, LICENSE, CI | ✅ Day 1 done |
-| Ingest pipeline (Aider/Cline/Continue) | 🚧 next |
-| Dedup layer | 🚧 |
+| Ingest pipeline (Aider/Cline/Continue) | ✅ |
+| Dedup layer (fuzzy + semantic + golden fixture) | ✅ 84.8% mutation kill rate |
 | Moderation/PII filter | 🚧 |
-| Candidate-ranker | 🚧 |
+| Candidate-ranker | ✅ (see `docs/superpowers/specs/2026-05-17-ranker-design.md`) |
 | Descriptive analytics + TF-IDF | 🚧 |
-| Public-source voice synthesis × 2 weeks (no live interviews — v0 is public-data-only) | 🚧 |
+| Public-source voice synthesis × 2 weeks (no live interviews, v0 is public-data-only) | 🚧 |
 | Priority reports × 2 weeks | 🚧 |
-| Worked escalation (Playwright) | 🚧 |
-| Cursor product-familiarity manifest | 🚧 |
-| Writeup (2000 words) | 🚧 |
-| Demo recording (5 min) | 🚧 |
+| Worked escalation (Playwright) | ✅ scaffold |
+| Cursor product-familiarity manifest | ✅ skeleton (prose-fill by author) |
+| Writeup (2000 words) | ✅ skeleton (prose-fill by author) |
+| Demo recording (5 min) | ✅ script skeleton (recording by author) |
+| Mutation testing on dedup + rank | ✅ via mutmut; `bash scripts/run_mutmut.sh` |
+| Form-check p | ✅ via `scripts/form_check_score.py` |
 
 ## Quick start (when ingest lands)
 
 ```bash
 git clone https://github.com/wjia-2/lodestar
 cd lodestar
-pip install -e ".[dev]"
+
+pip install -e ".[dev]" (writes to data/<tool>-*.parquet)
 pytest
 # Pull last 90 days from each tool:
-python -m voc.ingest --tool aider --days 90
-python -m voc.ingest --tool cline --days 90
+python -m voc.ingest --tool aider --days 900
+
+# Dedup the corpus:
+python -m voc.dedup --input data/aider-90d.parquet --output data/aider-dedup.parquet
+
+# Rank top-20 candidates for the week:
+python -m voc.rank --input data/aider-dedup.parquet --output data/aider-ranked.parquet --top 2
+pyt
+
+The ranker output adds `recency_score`, `engagement_score`, `label_score`,
+`composite_score`, and `rank` columns. The composite is a candidate-priority
+signal for human review, NOT a severity classification.hon -m voc.ingest --tool cline --days 90
 python -m voc.ingest --tool continue --days 90
 ```
 

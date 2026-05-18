@@ -6,11 +6,20 @@ R6 (parquet round-trip preserves float64 scores).
 import subprocess
 import sys
 from datetime import timedelta
+from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from voc.rank.__main__ import run_rank
 from voc.schema.issue import Issue
+
+# When mutmut runs this suite from inside `mutants/`, the subprocess test
+# spawns `python -m voc.rank` which imports the trampolined module without
+# mutmut.config initialized; that crashes with NoneType.max_stack_depth.
+# Skip the subprocess test in that context; the in-process tests still
+# exercise the same code path.
+_UNDER_MUTMUT = Path.cwd().name == "mutants"
 
 
 def _to_parquet(issues, path):
@@ -112,6 +121,7 @@ def test_run_rank_ignores_extra_columns_from_dedup_stage(make_issue, now, tmp_pa
     assert "cluster_id_fuzzy" in df.columns
 
 
+@pytest.mark.skipif(_UNDER_MUTMUT, reason="subprocess + mutmut trampoline incompatible")
 def test_run_rank_cli_invocation_via_module(make_issue, now, tmp_path):
     """End-to-end via `python -m voc.rank`."""
     src = tmp_path / "in.parquet"
