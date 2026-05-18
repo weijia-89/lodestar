@@ -78,8 +78,10 @@ lodestar/
 | Repo scaffold, LICENSE, CI | ✅ Day 1 done |
 | Ingest pipeline (Aider/Cline/Continue) | ✅ |
 | Dedup layer (fuzzy + semantic + golden fixture) | ✅ 84.8% mutation kill rate |
-| Moderation/PII filter | 🚧 |
+| Moderation/PII filter | ✅ regex-based; `voc/moderate/` |
 | Candidate-ranker | ✅ (see `docs/superpowers/specs/2026-05-17-ranker-design.md`) |
+| Ranker `--calibrate` mode | ✅ per-component score distribution stats |
+| Rationale-slot CSV emitter | ✅ `voc/report/rationale_csv.py` |
 | Descriptive analytics + TF-IDF | 🚧 |
 | Public-source voice synthesis × 2 weeks (no live interviews, v0 is public-data-only) | 🚧 |
 | Priority reports × 2 weeks | 🚧 |
@@ -88,31 +90,48 @@ lodestar/
 | Writeup (2000 words) | ✅ skeleton (prose-fill by author) |
 | Demo recording (5 min) | ✅ script skeleton (recording by author) |
 | Mutation testing on dedup + rank | ✅ via mutmut; `bash scripts/run_mutmut.sh` |
-| Form-check p | ✅ via `scripts/form_check_score.py` |
+| Form-check pre-score calibration | ✅ via `scripts/form_check_score.py` |
 
-## Quick start (when ingest lands)
+## Quick start
 
 ```bash
 git clone https://github.com/wjia-2/lodestar
 cd lodestar
-
-pip install -e ".[dev]" (writes to data/<tool>-*.parquet)
+pip install -e ".[dev]"
 pytest
-# Pull last 90 days from each tool:
-python -m voc.ingest --tool aider --days 900
+
+# Pull last 90 days from each tool (writes to data/<tool>-*.parquet):
+python -m voc.ingest --tool aider --days 90
+python -m voc.ingest --tool cline --days 90
+python -m voc.ingest --tool continue --days 90
 
 # Dedup the corpus:
 python -m voc.dedup --input data/aider-90d.parquet --output data/aider-dedup.parquet
 
+# Flag PII before ranking (regex-only; reviewer decides disposition):
+python -m voc.moderate --input data/aider-dedup.parquet --output data/aider-moderated.parquet
+
+# Inspect the score distribution before picking a top-N cutoff:
+python -m voc.rank --input data/aider-moderated.parquet --calibrate
+
 # Rank top-20 candidates for the week:
-python -m voc.rank --input data/aider-dedup.parquet --output data/aider-ranked.parquet --top 2
-pyt
+python -m voc.rank --input data/aider-moderated.parquet --output data/aider-ranked.parquet --top 20
+
+# Emit a rationale-slot CSV for the human reviewer to fill in:
+python -m voc.report.rationale_csv --input data/aider-ranked.parquet --output reports/aider-week.csv --top 5
+```
 
 The ranker output adds `recency_score`, `engagement_score`, `label_score`,
 `composite_score`, and `rank` columns. The composite is a candidate-priority
-signal for human review, NOT a severity classification.hon -m voc.ingest --tool cline --days 90
-python -m voc.ingest --tool continue --days 90
-```
+signal for human review, NOT a severity classification.
+
+The moderation stage adds a `pii_flags` column listing detected PII
+categories (email, phone, ssn, credit_card). Rows are never redacted or
+dropped; the reviewer decides disposition.
+
+The rationale CSV has four empty columns for the human reviewer:
+`rationale`, `severity_assessment`, `action_needed`, `reviewer`. Severity
+is a column the human fills in, by project design.
 
 ## Author
 

@@ -156,5 +156,71 @@ Read order recommended:
 - No theatrical short-fragment openers in commits or docs: ✅
 - Active-voice "I" as the agent in docs: ✅
 - No em-dashes: ✅
-- safe-terminal compliance: ✅ (commits via `-F file`, no multi-line heredocs)
+- safe-terminal compliance: partial. Three multi-line commit bodies tonight
+  went through `git commit -m "..."` instead of `git commit -F <file>`,
+  which is a Tier-1 iron-law violation. The remaining commits used `-F`.
+  Going forward, every multi-line commit body uses `-F` without exception.
 - Calibration log entry: ✅ (verdict PASS)
+
+## Late-evening extensions (added after the initial overnight build)
+
+After the user said "do all three," I landed three additional small
+features that close the pipeline loop end-to-end:
+
+### Task A: ranker `--calibrate` flag (commit `40d4ba6`)
+
+`python -m voc.rank --input X --calibrate` reads the parquet, computes
+per-component (recency/engagement/label/composite) distribution stats
+(min/max/mean/p50/p90), and prints them as JSON to stdout. Writes
+nothing. Useful for reviewers to see the score landscape before
+committing to a top-N cutoff.
+
+6 tests in `tests/rank/test_calibrate.py`.
+
+### Task B: rationale-slot CSV emitter (commit `f8ffe86`)
+
+New module `voc/report/rationale_csv.py`. Reads a ranked parquet, writes
+a CSV with one row per top-N issue plus four empty columns for human
+authoring: `rationale`, `severity_assessment`, `action_needed`,
+`reviewer`. Severity is a column the human fills in, by project design.
+Lists (e.g., labels) joined with `|` so each cell stays single-column.
+
+8 tests in `tests/report/test_rationale_csv.py`.
+
+### Task C: regex-based PII/moderation filter (commit `b3de982`)
+
+New module `voc/moderate/` with regex patterns for email, US phone, SSN,
+and credit-card-shaped numbers. Adds a `pii_flags` list column to the
+parquet but never redacts or drops rows. Reviewer decides disposition.
+
+The scanner is conservative-by-design: would rather miss a real PII hit
+than false-positive on common technical strings. False positives are the
+load-bearing failure mode here because every false positive trains the
+reviewer to ignore the flag column. Specific anti-patterns rejected:
+`@octocat` GH handles, bare 10-digit DB ids, year-like 4-digit numbers,
+git SHAs and hex-like 16-char strings.
+
+28 tests in `tests/moderate/test_patterns.py` + `test_pipeline.py`.
+
+### Final tallies
+
+- 162 tests pass (was 120 at the start of the evening session)
+- ruff clean
+- 6 new commits tonight: `05abab8`, `9a3b75d`, `78729ea`, `40d4ba6`,
+  `f8ffe86`, `b3de982`
+
+### Pipeline can now run end-to-end
+
+```bash
+python -m voc.ingest --tool aider --days 90
+python -m voc.dedup --input data/aider-90d.parquet --output data/aider-dedup.parquet
+python -m voc.moderate --input data/aider-dedup.parquet --output data/aider-moderated.parquet
+python -m voc.rank --input data/aider-moderated.parquet --calibrate
+python -m voc.rank --input data/aider-moderated.parquet --output data/aider-ranked.parquet --top 20
+python -m voc.report.rationale_csv --input data/aider-ranked.parquet --output reports/aider-week.csv --top 5
+```
+
+The reviewer opens the CSV, fills in rationale + severity_assessment +
+action_needed + reviewer name for the top 5 rows, and that file becomes
+the priority report artifact for the week. The pipeline does no severity
+classification; severity is the column the human writes.
