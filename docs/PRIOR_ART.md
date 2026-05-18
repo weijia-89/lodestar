@@ -8,7 +8,7 @@
 
 ---
 
-## Category 1 — ML bug classification
+## Category 1, ML bug classification
 
 ### Mozilla bugbug `[verified]`
 
@@ -17,23 +17,23 @@
 - **Scale:** ~1k stars; actively maintained; Mozilla's CI integrates it
 - **Function:** 19+ classifiers on Bugzilla bugs and GitHub issues, including: `assignee`, `backout`, `bugtype` (crash/memory/performance/security), `component`, `defect vs enhancement vs task`, `defect`, `devdocneeded`, `needsdiagnosis`, `qaneeded`, `regression vs non-regression`, `regressionrange`, `regressor`, `spam`, `stepstoreproduce`, `testfailure`, `testselect`, `tracking`, `uplift`. The `defect` classifier reports ~93% accuracy on 2110-bug dataset.
 - **Architecture (pipeline pattern):**
-  - `bugbug/bugzilla.py` + `bugbug/github.py` — ingest layer
-  - `bugbug/bug_features.py` — feature extraction
-  - `bugbug/model.py` + `bugbug/models/` — model layer
-  - `bugbug/nn.py` — neural network integration
-  - `bugbug/nlp/` — NLP utilities
-  - `bugbug/db.py` — simple JSON storage
+  - `bugbug/bugzilla.py` + `bugbug/github.py`, ingest layer
+  - `bugbug/bug_features.py`, feature extraction
+  - `bugbug/model.py` + `bugbug/models/`, model layer
+  - `bugbug/nn.py`, neural network integration
+  - `bugbug/nlp/`, NLP utilities
+  - `bugbug/db.py`, simple JSON storage
 - **What lodestar adopts:** The pipeline pattern (ingest → features → analytics → output). The conceptual credibility that ML/LLM-on-issues at scale is a legitimate engineering discipline.
-- **What lodestar diverges from:** bugbug auto-classifies several severity-adjacent things (defect-vs-task, regression-vs-not, bugtype). lodestar deliberately does NOT auto-classify severity — that's the PQE-shape demonstration. bugbug is single-project-centric (Mozilla); lodestar is cross-tool (Aider + Cline + Continue). bugbug uses Keras/scikit-learn classifiers with labeled datasets; lodestar uses descriptive analytics (TF-IDF themes, engagement weighting) without claiming model accuracy.
+- **What lodestar diverges from:** bugbug auto-classifies several severity-adjacent things (defect-vs-task, regression-vs-not, bugtype). lodestar deliberately does NOT auto-classify severity, that's the PQE-shape demonstration. bugbug is single-project-centric (Mozilla); lodestar is cross-tool (Aider + Cline + Continue). bugbug uses Keras/scikit-learn classifiers with labeled datasets; lodestar uses descriptive analytics (TF-IDF themes, engagement weighting) without claiming model accuracy.
 
 ---
 
-## Category 2 — In-thread LLM issue assistants
+## Category 2, In-thread LLM issue assistants
 
-### trIAge (latentspace-lab) `[verified — README; status: under construction]`
+### trIAge (latentspace-lab) `[verified, README; status: under construction]`
 
 - **URL:** https://github.com/latentspace-lab/trIAge
-- **License:** `[unknown — not displayed on landing]`
+- **License:** `[unknown, not displayed on landing]`
 - **Function:** "AI assistant for open-source communities." LLM responds in-thread to issues, discussions, and PRs.
 - **Documented skills (under construction per README):** Support, Issue Quality Control, Issue Triage (categorize / dedup / prioritize / link related), Debugging, Testing (test case generation), Pull Request Review, Documentation, Changelogs.
 - **Shape:** Per-issue or per-PR conversational response. Each issue gets analyzed individually; the assistant comments back in the discussion thread.
@@ -42,12 +42,12 @@
 
 ---
 
-## Category 3 — Single-repo LLM issue prioritizers
+## Category 3, Single-repo LLM issue prioritizers
 
-### RaschidJFR/github-issue-analyzer `[verified — README, features, output schema]`
+### RaschidJFR/github-issue-analyzer `[verified, README, features, output schema]`
 
 - **URL:** https://github.com/RaschidJFR/github-issue-analyzer
-- **License:** `[unknown — not displayed]`
+- **License:** `[unknown, not displayed]`
 - **Function:** "A Python tool for analyzing and prioritizing GitHub issues with AI based on traction, impact, and estimated effort."
 - **Scoring formula (verified from README):**
   - **traction** = `commentCount × 0.3 + commenterCount × 0.6 + reactionCount × 0.15 + avg_comments_per_week × 0.2`
@@ -59,7 +59,7 @@
 - **What lodestar adopts:** The **traction formula concept** (weighted engagement signals: comment count, commenter diversity, reactions, recency-of-conversation). lodestar's ranker borrows the structural idea (multi-signal weighted score) while pinning the impact and severity signals to human judgment instead of LLM judgment.
 - **What lodestar diverges from:** RaschidJFR's `impact` and `effort` are LLM-judged → lodestar's `severity` is human-judged (PQE shape, per JD). RaschidJFR is single-repo per invocation → lodestar is cross-repo synthesis. RaschidJFR outputs raw CSV → lodestar outputs a weekly PM-consumer-shaped Markdown priority report with Wei rationale.
 
-### Smaller LLM-issue-analyzer projects `[partially verified — read search snippets, did not deep-dive each]`
+### Smaller LLM-issue-analyzer projects `[partially verified, read search snippets, did not deep-dive each]`
 
 Five additional single-author projects found via GitHub MCP search:
 
@@ -75,29 +75,29 @@ Five additional single-author projects found via GitHub MCP search:
 
 ---
 
-## Category 4 — Customer-facing feedback intake
+## Category 4, Customer-facing feedback intake
 
-### ClearFlask `[verified — README, architecture]`
+### ClearFlask `[verified, README, architecture]`
 
 - **URL:** https://github.com/clearflask/clearflask
 - **License:** AGPL-3.0 (verified via Cloudron forum citation; copyleft applies, network-use triggers source-share obligation)
 - **Function:** Customer-facing feedback management tool. Users submit feedback; product teams triage publicly.
 - **Architecture (full-stack web app):** OpenAPI between frontend and backend; React + NodeJS Connect server frontend; Java backend on DynamoDB + ElasticSearch + S3 + KillBill billing.
 - **What lodestar adopts:** Nothing architecturally (full-stack web app is wrong shape for a portfolio Python analytics pipeline).
-- **What lodestar diverges from:** ClearFlask is INBOUND (users submit feedback to the tool); lodestar is OUTBOUND (mines already-public issues; synthesizes for engineering). They're complementary, not competing — a Cursor team could plausibly run ClearFlask for direct customer feedback AND lodestar-style analysis for GitHub-issue voice. Listed here because it's the open-source VoC reference point Wei's writeup will be compared to.
+- **What lodestar diverges from:** ClearFlask is INBOUND (users submit feedback to the tool); lodestar is OUTBOUND (mines already-public issues; synthesizes for engineering). They're complementary, not competing, a Cursor team could plausibly run ClearFlask for direct customer feedback AND lodestar-style analysis for GitHub-issue voice. Listed here because it's the open-source VoC reference point Wei's writeup will be compared to.
 
 ### Adjacent commercial closed-source VoC
 
-Productboard, Canny.io, Aha!, UserVoice — all closed-source commercial; relevant only as landscape reference, no code to read.
+Productboard, Canny.io, Aha!, UserVoice, all closed-source commercial; relevant only as landscape reference, no code to read.
 
 ---
 
-## Category 5 — Bug-reproduction benchmarks (program-repair research)
+## Category 5, Bug-reproduction benchmarks (program-repair research)
 
-### Defects4J, BugSwarm, SWE-bench, "GitHub Recent Bugs Dataset" `[partially verified — search snippets + survey paper references]`
+### Defects4J, BugSwarm, SWE-bench, "GitHub Recent Bugs Dataset" `[partially verified, search snippets + survey paper references]`
 
 - **Function:** Reproducible bug datasets for evaluating automated program repair and LLM debugging agents.
-- **Shape:** Downstream of triage entirely — these benchmarks assume the bug is already prioritized and engineering effort is committed; they evaluate whether an LLM can synthesize a patch.
+- **Shape:** Downstream of triage entirely, these benchmarks assume the bug is already prioritized and engineering effort is committed; they evaluate whether an LLM can synthesize a patch.
 - **Why listed:** Completes the landscape. Adjacent academic survey: `iSEngLab/AwesomeLLM4SE` (SCIS 2025 survey) and `iSEngLab/AwesomeLLM4APR` (TOSEM 2026 systematic review). lodestar can cite as the broader landscape map.
 - **What lodestar diverges from:** Entirely different problem. Patch generation is solution-space; lodestar is problem-space (what to work on, not how to fix it).
 
@@ -109,7 +109,7 @@ Productboard, Canny.io, Aha!, UserVoice — all closed-source commercial; releva
 >
 > 1. **Severity is human-judged, structurally enforced** (`severity_source: Literal["human"]` field; no auto-classifier produces a severity field). bugbug auto-classifies bugtype; trIAge LLM-prioritizes; RaschidJFR LLM-judges impact + effort. lodestar restores human judgment as the load-bearing PQE artifact.
 > 2. **Cross-tool synthesis, not single-repo focus.** Every cited project (bugbug, trIAge, RaschidJFR, all hobby projects) operates on one repo at a time. lodestar synthesizes across multiple agentic-coding tools to surface what matters in the category, not in one product.
-> 3. **PQE-shaped weekly external report.** Output is a Markdown priority report consumable in 5 minutes by a PM or engineering leader — not a CSV of scored issues, not in-thread bot responses, not a dashboard. The PQE judgment artifact is the per-item severity reasoning written by hand on top of pipeline-curated candidates.
+> 3. **PQE-shaped weekly external report.** Output is a Markdown priority report consumable in 5 minutes by a PM or engineering leader, not a CSV of scored issues, not in-thread bot responses, not a dashboard. The PQE judgment artifact is the per-item severity reasoning written by hand on top of pipeline-curated candidates.
 
 ## Adopted ideas (with attribution in writeup)
 
@@ -133,7 +133,7 @@ Productboard, Canny.io, Aha!, UserVoice — all closed-source commercial; releva
 ## Gaps remaining in prior art
 
 - **No public artifact** addresses cross-tool VoC synthesis for AI-coding-tools specifically `[verified via no-hits search + low-star single-repo alternatives]`
-- **No public artifact** demonstrates the PQE-shape (human-severity + curated top-N + concrete engineering response) as a portfolio demonstration `[inferred — searched for "PQE portfolio" + "quality engineer portfolio github" yielded resume sites, no project artifacts]`
+- **No public artifact** demonstrates the PQE-shape (human-severity + curated top-N + concrete engineering response) as a portfolio demonstration `[inferred, searched for "PQE portfolio" + "quality engineer portfolio github" yielded resume sites, no project artifacts]`
 - **Issue-similarity / dedup at scale** has academic treatment but few maintained open-source implementations `[verified via empty MCP search for "duplicate bug detection" + "github issues clustering"]`
 
 lodestar v0 ships into these gaps.
