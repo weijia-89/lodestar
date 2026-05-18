@@ -178,6 +178,65 @@ def test_emit_rationale_csv_surfaces_pii_flags_when_present(
     )
 
 
+def test_emit_rationale_csv_with_themes_adds_column(make_issue, now, tmp_path):
+    """When --themes is passed, the CSV gains a `theme_top_terms` column
+    populated with pipe-joined TF-IDF top terms per cluster.
+
+    Spec source: voc/analytics/themes.py docstring. Themes are descriptive
+    of recurring vocabulary across the issue corpus; the column is
+    informational for the human reviewer.
+    """
+    src = tmp_path / "in.parquet"
+    ranked = tmp_path / "ranked.parquet"
+    out = tmp_path / "rationale.csv"
+    # ≥3 rows with vocabulary overlap so the clusterer produces non-empty
+    # top terms; the project's TFIDF defaults need min_df=2 coverage.
+    issues = [
+        make_issue(1, title="crash on save", body="python crash trace when saving"),
+        make_issue(2, title="crash on quit", body="python crash on quit segfault"),
+        make_issue(3, title="performance slow", body="feels slow on large files"),
+        make_issue(4, title="slow load time", body="application slow to start up"),
+        make_issue(5, title="docs typo", body="documentation typo in readme"),
+    ]
+    _to_ranked_parquet(issues, src, ranked, now)
+    emit_rationale_csv(input=ranked, output=out, n=5, themes=True)
+
+    df = pd.read_csv(out)
+    assert "theme_top_terms" in df.columns, (
+        f"theme_top_terms missing from CSV when --themes is on. Header: {df.columns.tolist()}"
+    )
+    # At least one row carries non-empty terms; clusters must label some issues.
+    non_empty = df["theme_top_terms"].fillna("").astype(str).str.len() > 0
+    assert non_empty.any(), (
+        "no row had non-empty theme_top_terms; clusterer produced no labels"
+    )
+
+
+def test_emit_rationale_csv_without_themes_unchanged(make_issue, now, tmp_path):
+    """Without --themes, the CSV header must NOT include theme_top_terms.
+
+    Regression gate on the additive contract: passing the flag is the only
+    way the column appears. Existing pipelines and existing tests must
+    continue to see the unaugmented CSV.
+    """
+    src = tmp_path / "in.parquet"
+    ranked = tmp_path / "ranked.parquet"
+    out = tmp_path / "rationale.csv"
+    issues = [
+        make_issue(i, title=f"issue number {i}", body=f"body text {i}")
+        for i in range(5)
+    ]
+    _to_ranked_parquet(issues, src, ranked, now)
+    emit_rationale_csv(input=ranked, output=out, n=5)  # themes defaults to False
+
+    with out.open() as f:
+        reader = csv.reader(f)
+        header = next(reader)
+    assert "theme_top_terms" not in header, (
+        f"theme_top_terms must not appear in CSV when --themes is off. Header: {header}"
+    )
+
+
 @pytest.mark.skipif(_UNDER_MUTMUT, reason="subprocess + mutmut trampoline incompatible")
 def test_emit_rationale_csv_cli_smoke(make_issue, now, tmp_path):
     """End-to-end via `python -m voc.report.rationale_csv`."""

@@ -82,6 +82,18 @@ This is a future roadmap item, supporting [ACP](https://agentclientprotocol.com/
 
 ---
 
+## Themes this week
+
+_TF-IDF theme clusters across the moderated corpus this window. The output describes recurring vocabulary across the open-issue population. Theme membership does not imply priority; the top issues above may or may not belong to the largest theme._
+
+- **Theme A**, top terms: _<term1, term2, term3, ...>_. Observed in N issues this window. Example: [issue title](url).
+- **Theme B**, top terms: _<terms>_. Observed in N issues this window. Example: [issue title](url).
+- **Theme C**, top terms: _<terms>_. Observed in N issues this window. Example: [issue title](url).
+
+**Themes methodology note:** TF-IDF vectorization over title + body, MiniBatchKMeans clustering with `random_state=0`, English stopwords plus a small domain list, top-5 terms per theme by centroid weight. The clustering surfaces recurring vocabulary across issues; it does not recover latent topics and carries no statistical-significance claim.
+
+---
+
 ## Where the pipeline and human judgment diverged
 
 Across all three issues the ranker placed at the top, the comment threads share a structural pattern the pipeline does not pick up. Two of the three (issues 3603 and 851) have community-built PRs or forks with working code waiting on maintainer review, and the third (3037) has a recent comment claiming an upstream fix has already shipped via PR 4899. The composite ranker scores these on engagement and recency but not on PR-readiness or whether the bottleneck is engineering work versus maintainer attention. From a PQE judgment standpoint, this is the kind of signal that would change my handoff recommendation, because when the community has done the work the action is to triage the open PR and unblock the merge, not to investigate the problem from scratch. The ranker's top three would benefit from a `community_pr_open` boolean signal that the GitHub Issues schema can surface cheaply and the dedup/rank pipeline does not currently track. A second pipeline-design observation surfaced in the rank-4 and rank-5 rows: issue 5131 (a docs-versus-CLI flag mismatch, two comments, zero reactions) and issue 5145 (an uncaught `NotImplementedError` in `pathlib.py`, already closed) both surfaced in the top five despite weak engagement, which suggests recency dominates more than I expected at this window and that filtering closed issues out of the candidate pool before ranking is a v0.1 candidate.
