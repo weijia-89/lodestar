@@ -42,6 +42,7 @@ CONTEXT_COLUMNS = (
     "engagement_score",
     "label_score",
     "labels",
+    "pii_flags",
     "comments_count",
     "reactions_count",
     "state",
@@ -70,11 +71,17 @@ def emit_rationale_csv(input: Path, output: Path, n: int) -> int:
 
 
 def _csv_cell(value: object) -> str:
-    """Render a parquet cell for CSV. Lists are joined with `|` so the CSV stays one cell."""
-    if isinstance(value, list):
-        return "|".join(str(x) for x in value)
+    """Render a parquet cell for CSV. Lists/arrays are joined with `|` so the CSV stays one cell."""
     if value is None:
         return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (list, tuple)):
+        return "|".join(str(x) for x in value)
+    # pyarrow round-trips list columns as numpy.ndarray rather than list.
+    # Without this branch, labels and pii_flags render as repr strings.
+    if hasattr(value, "__iter__") and hasattr(value, "tolist"):
+        return "|".join(str(x) for x in value)
     return str(value)
 
 

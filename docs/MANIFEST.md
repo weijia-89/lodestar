@@ -51,7 +51,7 @@ already supports well" from "what I wish Cursor did".]
 [~250 words. What Cursor's existing feedback channels look like from a
 user: thumbs-up/down, in-app feedback dialog, public Discord, public
 GitHub issues for cursor-related repos, support ticket flow. Wei's
-observations on the gaps between these channels — what voice-of-customer
+observations on the gaps between these channels, what voice-of-customer
 signal probably reaches PMs vs what gets lost in support triage. This is
 the PQE-judgment artifact: Wei thinking like a User-Ops PQE before having
 the role.]

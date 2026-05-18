@@ -140,6 +140,44 @@ def test_emit_rationale_csv_empty_input_writes_header_only(now, tmp_path):
         assert col in rows[0]
 
 
+def test_emit_rationale_csv_surfaces_pii_flags_when_present(
+    make_issue, now, tmp_path
+):
+    """pii_flags column from the moderate stage must reach the human reviewer.
+
+    Spec source: README "Build status" + voc/moderate/__main__.py docstring.
+    The moderate stage adds a pii_flags list column and never redacts or
+    drops rows; the reviewer decides disposition. Therefore the rationale
+    CSV emitter must surface pii_flags when the column exists in the
+    ranked parquet.
+    """
+    src = tmp_path / "in.parquet"
+    ranked = tmp_path / "ranked.parquet"
+    out = tmp_path / "rationale.csv"
+    _to_ranked_parquet([make_issue(1), make_issue(2)], src, ranked, now)
+    # Inject a moderate-stage-shaped pii_flags column into the ranked parquet.
+    df = pd.read_parquet(ranked)
+    df["pii_flags"] = [["email"], []]
+    df.to_parquet(ranked, index=False)
+    emit_rationale_csv(input=ranked, output=out, n=2)
+
+    with out.open() as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        rows = list(reader)
+    assert "pii_flags" in header, (
+        f"pii_flags missing from CSV header: {header}. "
+        "voc/moderate/__main__.py promises this column reaches the reviewer."
+    )
+    pii_col = header.index("pii_flags")
+    assert rows[0][pii_col] == "email", (
+        f"row 0 pii_flags should render 'email', got {rows[0][pii_col]!r}"
+    )
+    assert rows[1][pii_col] == "", (
+        f"row 1 pii_flags should be empty string, got {rows[1][pii_col]!r}"
+    )
+
+
 @pytest.mark.skipif(_UNDER_MUTMUT, reason="subprocess + mutmut trampoline incompatible")
 def test_emit_rationale_csv_cli_smoke(make_issue, now, tmp_path):
     """End-to-end via `python -m voc.report.rationale_csv`."""

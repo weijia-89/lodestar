@@ -1,6 +1,6 @@
 # Worked customer escalation
 
-> **Status:** [TEMPLATE — Wei to fill once real bug found and reproduced.]
+> **Status:** [TEMPLATE, v0.1 artifact. Wei to fill once real bug found and reproduced.]
 
 ## Bug summary
 

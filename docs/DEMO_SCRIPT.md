@@ -1,6 +1,16 @@
 # lodestar 5-minute demo script
 
-> **Format:** Screen recording + voiceover. 5:00 hard cap.
+> **Status:** v0.1 artifact. The script below references multi-tool reports
+> (Aider Week 20, voice synthesis memos, worked escalation) that do not exist
+> in v0-min. Rewrite this to a 2-minute single-tool walkthrough when v0-min
+> ships, then record at v0.1 scope when the deferred pillars land.
+>
+> **v0-min substitute:** the README + `docs/WRITEUP.md` + `reports/aider-week.md`
+> together carry the demonstration for now. A recording becomes worth making
+> once Cline + Continue + voice synthesis + worked escalation are also in
+> scope.
+>
+> **Format (for v0.1 recording):** Screen recording + voiceover. 5:00 hard cap.
 > Wei records once; ship the first take that passes the script. No editing.
 
 ## 0:00 — Frame (30 seconds)

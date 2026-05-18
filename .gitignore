@@ -40,3 +40,7 @@ data/cache/
 mutants/
 .mutmut-cache/
 mutmut-stats.db
+
+# Session handoffs, agent-to-agent context dumps, scratch.
+# Never committed; reconstructable from the canonical docs.
+localonly/

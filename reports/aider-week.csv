@@ -1,0 +1,4 @@
+rank,id,url,title,composite_score,recency_score,engagement_score,label_score,labels,pii_flags,comments_count,reactions_count,state,rationale,severity_assessment,action_needed,reviewer
+1,aider:3037,https://github.com/Aider-AI/aider/issues/3037,Python 3.13 support,0.6540612041984614,0.6439089114938448,0.9912440990023085,0.0,enhancement,,30,22,open,,,,
+2,aider:3603,https://github.com/Aider-AI/aider/issues/3603,Reconsider Inclusion of Dependencies in Repo Map,0.5429048586220468,0.38959334953067914,0.9676687970244379,0.0,,,14,24,open,,,,
+3,aider:851,https://github.com/Aider-AI/aider/issues/851,Zed Editor Support,0.47421439096112444,0.6659622709203703,0.5195737064824407,0.0,enhancement,,10,0,open,,,,
