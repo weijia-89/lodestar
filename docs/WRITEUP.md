@@ -1,72 +1,25 @@
 # lodestar, a public-source VoC v0-min for agentic coding tools
 
-> **Status:** [TEMPLATE, v0-min ~500 words. Wei to fill each section's body
-> from the actual Aider Week-N priority report. Word budgets are guidance,
-> not hard limits.]
+## What this is
 
-## What this is (~75 words)
+It spoke to me as someone who was once in Product Support, became a QA Engineer, and did a half-year stint as a Product Manager. From that I developed deep customer empathy and made friends with our Customer Success Managers. Orgs should require their eng and product people to actually use their product, to see all of its little quirks in real workflows. Surfacing signals from the noise of a large community is something that sounds like a really interesting challenge and is something that I've already done during my stints as the customer feedback triage QA. Digging in deep, replicating issues, detecting higher level patterns, surfacing to teams, and getting the right people to pay attention, that's all stuff that I actively enjoy doing. So I wanted to create this as a portfolio project in as short of a time as possible, essentially as soon as I saw the Cursor job description. You can read [`reports/aider-week.md`](../reports/aider-week.md) for the output but the pipeline that led to it is fully experimental and is something that I learned a lot from completing.
 
-[Lodestar is a public, reproducible Voice-of-Customer v0-min for Aider.
-The pipeline ingests Aider's GitHub Issues, deduplicates, flags PII, ranks
-the open-issue population by engagement * recency * label_weight, and emits
-a top-20 candidate list. The human (Wei) writes rationale on the top 3.
-The pipeline is supporting infrastructure; the priority report with rationale
-is the demonstration. v0.1 extends to Cline + Continue, adds voice synthesis
-from Reddit + HN, and a worked escalation.]
+## What this isn't
 
-## What this isn't (~50 words)
+This is not multi-tool. I only ran Aider this week, with me as the only reviewer, which means there's no inter-rater reliability claim and no longitudinal signal yet. The output is descriptive only, capturing the open-issue population at the moment I sampled, with no inferential claim. I picked Aider rather than Cursor because Aider's issue tracker is public and Cursor's quality signal sits behind a paywall, which is fair and is also exactly what makes a PQE role at Cursor interesting to me in the first place. What's here is a set of patterns I'd port forward if this became a real thing rather than a one-day portfolio piece.
 
-[v0-min ships one tool (Aider), one week, top-3 rationales. The scope-cut
-is honest:
+## Methodology
 
-- Not a production VoC system
-- Not a statistically powered study (no sampling claim, no significance testing, no inter-rater reliability)
-- Not an auto-severity classifier (severity stays human judgment)
-- Not a multi-tool or multi-week trend report
+The pipeline is descriptive only, just an observation of the full open-issue population at the time of run. I ran the deduplication in two passes since no single threshold gets both kinds of duplication. Then a pass with rapidfuzz token_set_ratio at 0.85, which mostly handles titles that share words but in a different order. Opportunity for heuristics and falsifiable hypotheses here is a future roadmap item :) Then a slower TF-IDF cosine at 0.5 runs on the remaining to catch dupes where two users described the same bug in completely different language. Union-find groups whatever both passes flag. After dedup, moderation runs as a deterministic PII regex because regex is harder to adversarially flip than an LLM under prompt injection. The ranker uses engagement x recency x label_weight. Severity is up to the person reviewing (and project owner). I wrote the top-3 rationales with a little context from Claude about the codebase. TF-IDF theme clustering surfaces categories that are popping up frequently.
 
-Voice synthesis (Reddit + HN), TF-IDF theme clustering, and a worked
-Playwright escalation are v0.1.]
+## What I learned about Aider
 
-## Methodology (~100 words)
+Aider is Paul Gauthier's AI pair-programmer for the terminal, sitting at 44,988 stars and 1,545 open issues, with 4,439 forks. Looking through three weeks of commit history, every merged commit but one was authored by Paul himself, the only exception being a community PR. That made sense to me when I started digging into the ranker output. The recency multiplier had pushed issue #5131 (the benchmark flag mismatch I wrote up as the worked escalation), which was four days old with low engagement, into mid-table while older issues with substantive comment threads like #3037 were ranked above. Two of the three top-ranked issues also had open community PRs sitting there awaiting maintainer review. What this told me was that lodestar was missing a community_pr_open signal, since engineering-blocked and review-blocked issues end up with the same handoff treatment.
 
-[Descriptive only, no sampling claim, full observed 90-day Aider issue
-population. Dedup is fuzzy-title (rapidfuzz token_set_ratio at 0.85) plus
-semantic similarity (TF-IDF cosine at 0.5), clustered with union-find.
-Moderation is deterministic PII regex (load-bearing, zero mutation
-survivors). Ranker is engagement * recency * label_weight with an
-auditable per-issue ScoreBreakdown. Label weights are defensible operator
-wisdom, not calibrated against ground truth (none exists for this
-data). Every quoted field passes the PII filter. 76% mutation kill rate
-on dedup + rank + moderate + report.]
+## Honest limitations
 
-## What I learned about Aider (~150 words)
+There's still a lot of work cut out for this but this is one tool, a little more than a single day, and me as the lone reviewer with nobody else there to help me skeptically test and troubleshoot. Rationales are out there as the human-in-the-loop review. Things like support tickets, Discord, in-product telemetry, and Reddit and HN voice synthesis are all future work, and hopefully API calls/MCPs and the like would be able to help handle them.
 
-[Wei's specific observations from reading the top-20 + writing rationale
-on top-3. Cite issue IDs. State 2-3 patterns. Distinguish "I observed"
-(direct, single-week) from "I conclude" (multi-week or cross-source,
-which v0-min does not support). Note one issue that the ranker scored
-high but Wei disagreed with on review (or note that the top-3 all
-landed where Wei would have ranked them by hand). The "where the
-pipeline and human judgment diverged" observation is the PQE-shape
-content reviewers should read.]
+## What I'd do at Cursor with private telemetry
 
-## Honest limitations (~100 words)
-
-[v0-min covers one tool, one week, top-3 rationales. No cross-tool, no
-multi-week, no voice synthesis, no worked escalation. The Aider open
-population is the corpus; closed issues are out of scope. LLM moderation
-augmentation is not in v0-min (regex is the load-bearing PII gate; LLM
-augmentation is bypassable and would have been advisory at best). Label
-weights are unvalidated against any merge-vs-close rate. The score
-formula is one defensible choice; calibration against real per-tool
-ground truth is v0.2 work.]
-
-## What I'd do at Cursor with private telemetry (~75 words)
-
-[Lodestar's public-source synthesis is half of what a Cursor PQE could
-ship internally. The other half is private signal: support tickets,
-in-product telemetry, Discord volume, paid-tier churn correlations.
-Plan: per-source confidence scores, weighted toward private signal where
-available, public-only fallback for cold-start segments. Honest about
-what's missing, I cannot demonstrate the private half from outside
-Cursor.]
+If I had access to Cursor's private telemetry, I'd start with a destructive-action incident index, tracking how often the agent runs rm-class shell commands, unapproved git reset/checkout/commit, or commands that bypass the user's allowlist. The forum surfaces these as scary one-off anecdotes (rm -rf ~ wiping a home directory in thread 129401; the v2.5 update silently removing the destructive-git-confirmation dialog in 152325), and there's a lot of public attention and furor over some notable, recent incidents involving rogue agents deleting entire platforms. The PLAN-mode violation cluster is the other one I'd dig into and I'm seeing it across threads 151802, 147589, and 148247. It's definitely one of those things that would require finicky reproduction and subsequent guardrails, and it makes me wonder if the solution isn't just rote phrase bans but proactive gating on specific commands, forcing user acknowledgement before moving forward. I'd want both clusters plotted against follow-up support tickets or thumbs-down, so fix priority tracks recurrence rate instead of forum thread volume.
