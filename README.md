@@ -2,7 +2,7 @@
 
 **Status:** v0-min portfolio demonstration. Shipped 2026-05-18; in active extension toward v0.1.
 **License:** MIT.
-**Scope:** Public Voice-of-Customer (VoC) pipeline for open-source agentic coding tools, demonstrated against Aider in v0-min. Demonstrates the shape of an AI-assisted VoC + agentic-bug-prioritization program on public data.
+**Scope:** Public Voice-of-Customer (VoC) pipeline for open-source agentic coding tools, exercised end-to-end against Aider in v0-min, with Cline and Continue ingest mappers scaffolded for v0.1. The shape is an AI-assisted VoC plus agentic-bug-prioritization program running entirely on public data.
 
 This is a portfolio demonstration, not a production VoC system and not a statistically powered study. It analyzes the full observed weekly issue population for the target tool, ranks descriptively, and routes a top-N to human review. It does not auto-classify severity (human judgment, by design) and does not claim inferential validity (descriptive analytics only).
 
@@ -16,7 +16,7 @@ Public agentic coding tools accumulate thousands of GitHub Issues per month. The
 2. Deduplicates the resulting corpus (fuzzy + semantic clustering)
 3. Surfaces "what matters most" descriptively across the full weekly issue population for each tool (no sampling claim; v0 takes the full available cohort)
 4. Lets a human reviewer focus judgment effort on a top-N while the pipeline handles scale
-5. Demonstrates a worked customer-escalation handoff in PQE (Product Quality Engineer) shape
+5. Carries a worked customer-escalation handoff through end-to-end in PQE (Product Quality Engineer) shape
 
 `lodestar` is a v0 of that artifact.
 
@@ -39,7 +39,7 @@ lodestar/
 │   ├── moderate/    Regex PII filter (load-bearing privacy gate)
 │   ├── rank/        Engagement * recency * label_weight ranker with calibrate mode
 │   ├── report/      Rationale-slot CSV emitter for the human reviewer
-│   └── classify/    Descriptive analytics (NOT auto-severity); TF-IDF clusters [v0.1]
+│   └── analytics/   Descriptive analytics (NOT auto-severity); TF-IDF themes shipped
 ├── tests/           172 tests; mutmut at 76% kill rate on dedup + rank + moderate + report
 ├── docs/
 │   ├── PRIOR_ART.md       Mozilla bugbug, trIAge, BugSwarm, ClearFlask, GH SecLab
@@ -47,7 +47,13 @@ lodestar/
 │   ├── ADVERSARIAL_REVIEW_2026-05-18.md   Multi-pass evidence-based code review
 │   ├── WORKED_ESCALATION.md  Index to the canonical escalation in reports/
 │   └── MANIFEST.md        Wei's personal Cursor manifest (frictions + workflows)
-├── reports/         Weekly priority reports (CSV + markdown)
+├── reports/
+│   ├── aider-week.csv + aider-week.md   Week-1 Aider priority report, rationale filled in
+│   └── escalation-aider-5131-benchmark-flag-mismatch.md   Worked escalation, v0-min
+├── scripts/
+│   ├── repro/aider-5131/   ~10s grep-based repro harness for the escalation
+│   ├── form_check_score.py
+│   └── run_mutmut.sh
 ├── pyproject.toml
 ├── LICENSE
 └── README.md
@@ -67,11 +73,11 @@ lodestar/
 
 ## Design choices (with rationale)
 
-- **No auto-severity-classification.** Severity is the PQE-judgment artifact this project demonstrates. Auto-classifying it would defeat the demonstration. Pipeline surfaces candidates; human picks and writes rationale.
+- **No auto-severity-classification.** Severity is the PQE-judgment artifact this project keeps in human hands. Auto-classifying it would defeat the point. Pipeline surfaces candidates; human picks and writes rationale.
 - **Full-population descriptive ranker.** Candidate-ranker ingests the full observed window of issue population for the target tool, ranks by recency × labels × engagement-signal, surfaces the top-20 to a human reviewer who writes rationale on the top N (top-3 in v0-min, target top-5 by v0.1). No sampling claim; the corpus is the observed cohort.
 - **Descriptive analytics over classifiers.** TF-IDF theme clustering, volume/recency/MTTC stats, dedup. No accuracy claims, no IRR overreach.
 - **Moderation/PII filter before any report downstream.** Keyword + LLM scan; ethics layer is the JD's "humans need to stay in the loop" principle made structural.
-- **Public-data only.** Zero proprietary references. No Intuit, Mailchimp, or Cursor-internal information.
+- **Public-data only.** Zero proprietary references; nothing pulled from Intuit, Mailchimp, or Cursor internals.
 
 ## Build status (v0-min, 2026-05-18)
 
@@ -86,32 +92,29 @@ lodestar/
 | Ranker `--calibrate` mode | ✅ per-component score distribution stats |
 | Rationale-slot CSV emitter | ✅ `voc/report/rationale_csv.py` |
 | Aider Week-N priority report (template) | ✅ `reports/aider-week.csv` + `reports/aider-week.md` |
-| Aider Week-N rationale × 3 (Wei prose) | 🚧 pending pipeline run + judgment pass |
+| Aider Week-N rationale × 3 (Wei prose) | ✅ `reports/aider-week.md` |
 | 500-word writeup | ✅ `docs/WRITEUP.md` |
 | Adversarial code review with public fix ledger | ✅ `docs/ADVERSARIAL_REVIEW_2026-05-18.md` |
 | Mutation testing (dedup + rank + moderate + report) | ✅ 76% kill rate; `bash scripts/run_mutmut.sh` |
 | Form-check pre-score calibration | ✅ via `scripts/form_check_score.py` |
-| Descriptive analytics + TF-IDF theme clustering | 🚧 [v0.1] |
+| Descriptive analytics + TF-IDF theme clustering | ✅ `voc/analytics/themes.py` |
 | Cross-tool coverage (Cline + Continue priority reports) | 🚧 [v0.1] |
 | Multi-week coverage (≥2 weeks per tool) | 🚧 [v0.1] |
 | Public-source voice synthesis (Reddit + HN) | 🚧 [v0.1] |
-| Worked escalation (Playwright bug reproduction + maintainer handoff) | 🚧 scaffold only; [v0.1] |
-| Cursor product-familiarity manifest | 🚧 template only; [v0.1] |
+| Worked escalation (aider#5131, grep-based static evidence) | ✅ `reports/escalation-aider-5131-benchmark-flag-mismatch.md` |
+| Cursor product-familiarity manifest | ✅ `docs/MANIFEST.md` |
 | Demo recording (5 min one-take) | 🚧 [v0.1] |
 
 ## v0.1 roadmap
 
-What v0-min ships is one tool (Aider), one week, top-3 rationales, plus a 500-word writeup. v0.1 adds:
+What v0-min ships is one tool (Aider), one week, top-3 rationales, a 500-word writeup, a worked escalation against aider#5131, a Cursor product-familiarity manifest, and TF-IDF theme clustering on the weekly corpus. v0.1 adds:
 
 1. **Cross-tool coverage.** Cline + Continue priority reports against the same pipeline; the ingest mappers already exist.
 2. **Multi-week coverage.** Two consecutive weeks per tool so trends become visible.
 3. **Voice synthesis pillar.** Reddit (r/ChatGPTCoding) + Hacker News public-thread synthesis, with the same PII regex applied as the GitHub Issues path. Output: one synthesis memo per tool per week, cross-referenced with the priority report.
-4. **TF-IDF theme clustering.** Descriptive only; surfaces what categories of issue dominate each week's corpus. Plan exists at `docs/superpowers/plans/2026-05-17-pass5B-tasks.md` (T14).
-5. **Worked escalation.** One real bug found in Aider, Cline, or Continue surface; Playwright reproduction; upstream issue filed; maintainer response logged in `docs/WORKED_ESCALATION.md`.
-6. **Cursor product-familiarity manifest.** Five frictions + three power-user workflows from Wei's existing Cursor use.
-7. **5-minute demo recording.** Single take, walking through the priority report + writeup + escalation.
+4. **5-minute demo recording.** Single take, walking through the priority report + writeup + escalation.
 
-Each v0.1 pillar has a Wei time estimate and a deferrable-vs-not tag. The honest framing is, v0-min is the shape of the demonstration; v0.1 is the demonstration at portfolio scale.
+Each v0.1 pillar has a Wei time estimate and a deferrable-vs-not tag. The honest framing is, v0-min is the shape of the demonstration and v0.1 is the demonstration at portfolio scale.
 
 ## Quick start
 
@@ -156,4 +159,4 @@ is a column the human fills in, by project design.
 
 Wei Jia. Built solo, AI-assisted, public, 2026-05.
 
-This is a portfolio demonstration project. If you're a hiring manager evaluating it, the 500-word writeup at `docs/WRITEUP.md` is the intended entry point, followed by `reports/aider-week.md` for the priority report Wei wrote rationale on, then `docs/ADVERSARIAL_REVIEW_2026-05-18.md` for the review discipline.
+This is a portfolio demonstration project. If you're a hiring manager evaluating it, the 500-word writeup at `docs/WRITEUP.md` is the intended entry point, followed by `reports/aider-week.md` for the priority report Wei wrote rationale on, then `reports/escalation-aider-5131-benchmark-flag-mismatch.md` for the worked escalation, and `docs/ADVERSARIAL_REVIEW_2026-05-18.md` for the review discipline.
