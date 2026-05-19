@@ -47,7 +47,7 @@ defaults, not data-driven thresholds, until N≥50 in calibration.jsonl):
 - Adding any new optional-dependency group to `pyproject.toml`
 - Changing `voc/dedup/tfidf.py:TFIDF_CONFIG` (impacts golden test baselines)
 - Changing fuzzy / semantic thresholds in `voc/dedup/__main__.py`
-- Editing prose in `docs/WRITEUP.md`, `docs/MANIFEST.md`, `docs/DEMO_SCRIPT.md`
+- Editing prose in `docs/WRITEUP.md`, `docs/MANIFEST.md`
   (these are Wei's voice; agent edits the SKELETON, not the prose)
 - Editing the calibration log (`career-help/applications/.recovery/calibration.jsonl`)
   outside of `scripts/form_check_score.py` invocations

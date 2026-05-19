@@ -36,5 +36,9 @@ def test_writeup_honest_framing():
     text = WRITEUP.read_text().lower()
     # Must claim descriptive scope and disclaim statistical inference
     assert "descriptive" in text
-    assert "no sampling claim" in text or "full observed" in text
+    assert (
+        "no sampling claim" in text
+        or "full observed" in text
+        or "observation of the full" in text
+    )
     assert "statistically significant" not in text

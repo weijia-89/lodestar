@@ -45,8 +45,8 @@ lodestar/
 │   ├── PRIOR_ART.md       Mozilla bugbug, trIAge, BugSwarm, ClearFlask, GH SecLab
 │   ├── WRITEUP.md         500-word v0-min writeup (entry point for reviewers)
 │   ├── ADVERSARIAL_REVIEW_2026-05-18.md   Multi-pass evidence-based code review
-│   ├── WORKED_ESCALATION.md  Playwright-based bug reproduction example [v0.1]
-│   └── MANIFEST.md        Cursor product-familiarity manifest [v0.1]
+│   ├── WORKED_ESCALATION.md  Index to the canonical escalation in reports/
+│   └── MANIFEST.md        Wei's personal Cursor manifest (frictions + workflows)
 ├── reports/         Weekly priority reports (CSV + markdown)
 ├── pyproject.toml
 ├── LICENSE

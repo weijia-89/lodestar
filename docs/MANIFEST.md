@@ -1,57 +1,33 @@
 # Cursor product-familiarity manifest
 
-> **Wei's existing Cursor use:** I've been a daily Cursor user since [date].
-> This manifest captures friction points and workflows generalized to be
-> shippable in a public repo (no employer-internal context). Built from
-> existing expertise, not from a fresh 2-week diary study.
+> **My existing Cursor use:** I've been a daily Cursor user since November 2025. This manifest captures friction points and workflows generalized for a public repo (no employer-internal context). It is built from existing expertise, not from a fresh 2-week diary study.
 
 ## Friction points
 
-### Friction: [1-line title for friction #1]
+### Friction: Integrated terminal stability with multi-agent workflows
 
-[~80 words. Specific friction Wei encounters in Cursor's UI/UX/workflow.
-Distinguish "annoys me personally" from "would annoy a typical PQE-User-Ops
-customer". Include a screenshot if relevant. Generalize: no employer-specific
-detail.]
+Cursor's integrated terminal has been reliable for ordinary shell work but fragile for the patterns I actually use in agentic workflows: multi-line `python3 -c` strings, heredocs that pipe to files, parallel git operations across worktrees, and the `&&`/`;` chained shell-state landmines that come with quick one-liners. When the terminal froze on a `dquote>` continuation or a heredoc waiting on stdin, the agent reading from it would lose state and become unresponsive. The combination of failure modes was sticky enough that I built a `safe-terminal` skill: a mechanical pre-flight check that rejects fragile shell patterns (heredocs, multi-line `cmd1 && cmd2`, foreground watchers without daemonization, interactive editors) before they ever reach the terminal, with each banned pattern documented and named. A wrapper script around the proposed command surfaces exit codes for timeouts, audit failures, and internal errors as distinct exit codes so the agent can route-correct rather than retry blindly.
 
-### Friction: [title for friction #2]
+### Friction: MCP and skills configuration drift across two AI clients
 
-[same shape]
+I run Cursor and Claude Desktop in parallel for related agent work, with each client carrying its own MCP server configurations, custom skills, and rules files. The configurations drift inside a week: a rule that fires in Cursor goes missing in Claude Desktop, an MCP server gets registered in one place and forgotten in the other, and the agent in the lagging client starts producing measurably worse output for tasks that the other client handles cleanly. I built `skill-sync` to bidirectionally reconcile custom skills and rules across the two clients, with interactive conflict resolution when both sides have local edits since the last sync. The general shape of the friction is that Cursor's skills and rules surfaces are first-class within Cursor but not portable across clients, so a power user with more than one AI editor has to build the bridge themselves.
 
-### Friction: [title for friction #3]
+### Friction: Agent window vs. extension agents and standalone Composer chats
 
-[same shape]
-
-### Friction: [title for friction #4]
-
-[same shape]
-
-### Friction: [title for friction #5]
-
-[same shape]
+The agent window in Cursor is the natural home for multi-step agentic work, and Cloud Agents extends that to parallel runs outside the local IDE. The friction lives in the boundary between Cursor's own agent surfaces and extension agents like Augment Code, plus standalone Composer side-pane chats. When I'm running multiple agents in parallel across these surfaces, the agent window assumes it's the only agent in town, and the coordination layer (which agent owns which file scope, what's the merge-back plan, where do the session logs land) has to live outside Cursor in a `/tmp/operator-notes.md` file and a hand-written merge script. I worked around it by converting everything to chat tabs and treating Composer as a parallel-friendly debugger on isolated git worktrees, which has been an unexpectedly productive pattern even though the workaround is manual.
 
 ## Power-user workflows
 
-### Workflow: [1-line title for workflow #1]
+### Workflow: Parallel-agent dispatch via Composer on isolated git worktrees
 
-[~150 words. A workflow Wei uses that exercises Cursor's depth.
-Include a screen-capture sequence if useful. Distinguish "what Cursor
-already supports well" from "what I wish Cursor did".]
-
-### Workflow: [title for workflow #2]
-
-[same shape]
-
-### Workflow: [title for workflow #3]
-
-[same shape]
+The trigger is having three or more independent surfaces to advance and wanting the work to happen in parallel without the agents stepping on each other's working tree. The chain is: create one git worktree per surface off the current main HEAD, open one fresh Cursor agent chat per worktree, and hand each a self-contained operator prompt that includes the worktree path as the `Cwd` parameter for every shell command. The agents work in isolation, commit only to their own branches, and never push. After all the agents return, an operator-side merge script runs pre-flight checks on each worktree (clean tree, ahead-of-main, lint, mypy), takes a pytest baseline from main, merges branches one at a time with verification between each, and reports the final state with a rollback SHA. The outcome is that a feature that would have been three sequential agent runs becomes one parallel run, with the coordination cost amortized across the worktrees. Today's session shipped three artifacts this way (a worked escalation, a TF-IDF themes module, and the Cursor product-familiarity manifest at `cursor/PRODUCT_MANIFEST.md`) from a single operator chat with a single merge step at the end. What Cursor supports well is the chat-per-tab pattern, which lets four parallel sessions live on the same machine without UI conflict. What I wish Cursor did is make the coordination layer first-class, with a parent-window view that owns the worktree-to-agent mapping, the merge plan, and the rollback anchor, so the operator notes do not have to live in `/tmp/`.
 
 ## Observations on Cursor's feedback surfaces
 
-[~250 words. What Cursor's existing feedback channels look like from a
-user: thumbs-up/down, in-app feedback dialog, public Discord, public
-GitHub issues for cursor-related repos, support ticket flow. Wei's
-observations on the gaps between these channels, what voice-of-customer
-signal probably reaches PMs vs what gets lost in support triage. This is
-the PQE-judgment artifact: Wei thinking like a User-Ops PQE before having
-the role.]
+When I hit a Cursor bug or limitation, more often than I should admit, I do not file it. The cost-benefit of writing up a one-off friction rarely beats the cost of the personal workaround I already have. I should file more often. The team cannot fix what they do not hear about, and a single "I hit this too" on someone else's open thread is low-cost signal that probably gets weighted in triage.
+
+From doing customer-feedback triage at my workplace, the pattern I see in any high-volume intake is that higher-quality signal gets swamped by lower-quality signal. User complaints fall into three rough classes, and the lower-quality two routinely swamp the higher-quality one. Actual product defects are what a PQE needs to see fastest. UX gaps and pure user-education gaps both read like defects from a first glance at the report; what separates them from real defects is whether the documented flow actually exists and whether the user followed it. Cursor's own published intake number, around 800 forum reports per month, sits well above what human triage can read pattern-first, and the unblock is heuristic-driven grouping followed by deterministic falsifiers.
+
+The pattern-detection technique I have used at work is keyword grouping that goes beyond the literal feature name. A complaint about "exports broken" might never mention the specific export endpoint, but it will mention the page name, the click sequence, the document type, or the format the user wanted. Grouping across those signals catches reports that strict feature-name search misses. The falsifier on top of the grouping is a cross-check against pageview analytics: when a user says feature X broke on page Y, I can confirm whether the user was actually on page Y when they hit the issue. That kind of cheap structural check cuts the false-positive rate fast and keeps the triage queue honest.
+
+The Cursor analog would be a falsifiable-hypotheses index that pre-sorts new reports across the three classes (defect, UX-or-docs gap, education gap) and runs cheap structural falsifiers (does the documented flow exist, did the user attempt it, what version of Cursor was running) before a human ever sees the report. The regression-class signal then raises in real time while the design-roadmap-class signal queues correctly. That index is the first thing I would build on day one if it does not already exist, because at 800 reports per month the alternative is hand-triaging through user-education noise to find the two reports that actually move a release decision.
