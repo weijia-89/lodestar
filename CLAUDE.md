@@ -191,3 +191,16 @@ adversarial review surfaced a README-vs-CLI divergence.
 Logged in calibration.jsonl entries. Recurring pattern: multi-line
 `python3 -c` strings for sklearn/rapidfuzz exploration. Mitigation: write
 to `/tmp/lodestar_<task>_probe.py` and invoke as a single-line command.
+
+## Cursor Cloud specific instructions
+
+The update script runs `uv pip install -e ".[dev]"` inside a venv at
+`/agent/repos/lodestar/.venv`. Activate with `source .venv/bin/activate`
+before running `pytest`, `mypy voc/`, or `ruff check voc/ tests/`.
+
+- **Tests:** `pytest --timeout=30` (172 passed, 2 skipped on baseline)
+- **Lint:** `ruff check voc/ tests/`
+- **Type check:** `mypy voc/`
+- **Pipeline demo:** `python -m voc.dedup --input tests/fixtures/aider_smoke_66.parquet --output /tmp/out.parquet` then `voc.moderate` then `voc.rank` (same `--input`/`--output` pattern)
+- The `voc.report` module has no `__main__.py`; use `voc.report.rationale_csv` as a library.
+- `storage.googleapis.com` is blocked by egress restrictions, which prevents Flutter SDK setup for the `buds` repo in the same workspace.
