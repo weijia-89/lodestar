@@ -52,6 +52,9 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 timeout = 30
 testpaths = ["tests"]
+markers = [
+    "escalation: Playwright browser tests (requires pip install -e '.[escalation]')",
+]
 
 [tool.mutmut]
 paths_to_mutate = ["voc/dedup/", "voc/rank/", "voc/moderate/", "voc/report/"]

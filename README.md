@@ -143,6 +143,17 @@ python -m voc.rank --input data/aider-moderated.parquet --output data/aider-rank
 python -m voc.report.rationale_csv --input data/aider-ranked.parquet --output reports/aider-week.csv --top 3
 ```
 
+### Optional: Playwright escalation harness (T25)
+
+Browser-based bug reproduction lives under `tests/escalation/`. These tests are
+opt-in and excluded from the default pytest run (`-m "not escalation"`).
+
+```bash
+pip install -e ".[escalation]"
+playwright install chromium
+pytest tests/escalation/test_playwright_smoke.py -x
+```
+
 The ranker output adds `recency_score`, `engagement_score`, `label_score`,
 `composite_score`, and `rank` columns. The composite is a candidate-priority
 signal for human review, NOT a severity classification.
