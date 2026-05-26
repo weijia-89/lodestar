@@ -146,7 +146,10 @@ python -m voc.report.rationale_csv --input data/aider-ranked.parquet --output re
 ### Optional: Playwright escalation harness (T25)
 
 Browser-based bug reproduction lives under `tests/escalation/`. These tests are
-opt-in and excluded from the default pytest run (`-m "not escalation"`).
+opt-in: each module skips collection when Playwright is not installed
+(`importorskip`), so CI and default `pytest` without `[escalation]` never load
+them. Tests are auto-tagged with the `escalation` marker; filter explicitly
+with `-m "not escalation"` or `-m escalation` when needed.
 
 ```bash
 pip install -e ".[escalation]"

@@ -1,4 +1,5 @@
-"""Escalation tests require optional Playwright deps; exclude from default pytest runs."""
+# sdk-review F2: hook tags only; importorskip in test modules handles skip-without-deps
+"""Escalation tests require optional Playwright deps; auto-mark with `escalation` for opt-in filtering."""
 from pathlib import Path
 
 import pytest
